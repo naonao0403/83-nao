@@ -14,6 +14,7 @@ public class Demo1 {
 		a.start();
 		t.start();
 		
+		
 		//获取当前线程：主线程
 		System.out.println("main getName:"+Thread.currentThread().getName());
 		System.out.println("main getPriority:"+Thread.currentThread().getPriority());
