@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="hello" class="com.yc.spring.Hello">  </bean>
+
+	<bean id="mdao" class="com.yc.spring.dao.OracleUserDao">  </bean>
+
+	<bean id="odao" class="com.yc.spring.dao.MySQLUserDao">  </bean>
+	
+	<bean id="p1" class="com.yc.spring.bean.Person"> 
+		<property name="name" value="武松"></property>
+		<property name="age" value="35"></property>
+		<property name="killeds">
+			<list>
+				<value type="java.lang.String">潘金莲</value>
+				<value>西门庆</value>
+				<value type="java.lang.String">蒋门神</value>
+				<value>null</value>
+				<null></null>
+			</list>
+		</property>
+		
+	</bean>
+	<!-- primary="true"设置当前bean是主要的 默认class 方式获取的bean -->
+	<bean class="com.yc.spring.bean.Person" primary="true">
+		<constructor-arg name="name" value="李逵" index="1"></constructor-arg>
+		<constructor-arg name="alisa" value="黑旋风" index="2"></constructor-arg>
+		<constructor-arg name="age" value="33" index="0"></constructor-arg>
+	</bean>
+	
+	<!-- ref引用其他的bean -->
+	<bean id="p2" class="com.yc.spring.bean.Person">
+		<property name="name" value="吴用"></property>
+		<property name="age" value="38"></property>
+		<property name="friend" ref="p3"></property>
+	</bean>
+	
+	<bean id="p3" class="com.yc.spring.bean.Person">
+		<property name="name" value="华荣"></property>
+	</bean>
+	
+	<!-- 工厂方式创建对象 -->
+	<!-- 静态工厂方法配置 -->
+	<bean id="p5" class="com.yc.spring.bean.Person" 
+		factory-method="PersonFactory">
+		<property name="name" value="王英"></property>
+	</bean>
+	
+	<!-- 实例工厂方法配制 -->
+	<bean id="p6" class="com.yc.spring.bean.Person" 
+		factory-method="PersonFactory1" factory-bean="personFactory">
+		<property name="name" value="扈三娘"></property>
+	</bean>
+	
+	<bean id="personFactory" class="com.yc.spring.bean.Person"></bean>
+	
+	<!-- 
+		scope="singleton" 单例默认每次getBean的时候 都会使用同一个bean
+		scope="prototype" 原型(多利) 每次getBean的时候 都会创建一个新的bean
+		其他作用域: session request global
+		prototype 模式每次都会创建新的bean 每次都会调用new or 工厂方法
+	 -->
+	<bean id="hello1" class="com.yc.spring.Hello" scope="prototype">
+	</bean>
+	
+	<!-- 
+		lazt-init: 懒加载 默认为false Spring容器在启动时 就会创建所有未配置懒加载bean
+		prototype原型模式下默认懒加载
+	 -->
+	<bean id="hello2" class="com.yc.spring.Hello" lazy-init="true">
+		<constructor-arg name="a" value="100"></constructor-arg>
+	</bean>
+	
+	<!-- 
+		autowire="default" 自动装载 根据一些规则自动的从IOC容器获取属性值
+		byName:用属性名从容器中获取指定id的bean
+		byType:用类名从容器中获取指定类型的bean
+		constructor:根据构造方法参数的类型获取bean
+		default==>no 不自动加载
+	 -->
+	<bean id="friend" class="com.yc.spring.bean.Person">
+		<property name="name" value="鲁智深"></property>
+	</bean>
+	
+
+	<bean id="p7" class="com.yc.spring.bean.Person" autowire="byName">
+		<property name="name" value="武松"></property>
+		<property name="age" value="35"></property>
+	</bean>
+</beans>
+
+

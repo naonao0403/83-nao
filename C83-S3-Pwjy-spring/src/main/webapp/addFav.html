@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+	<script type="text/javascript" src="js/vue.min.js"></script>
+	<script type="text/javascript" src="js/axios.min.js"></script>
+</head>
+<body>
+	<div id="add">
+		名称:<input v-model="flabel" type="text" maxlength="20"><br>
+		地址:<input v-model="furl" type="text" maxlength="20"><br>
+		分类:<input v-model="ftags" type="text" maxlength="20"><br>
+		描述:<textarea  v-model="fdesc" type="text" maxlength="20"></textarea><br>
+		<button @click="add()" type="button">添加</button>
+	</div>
+	<script type="text/javascript">
+	var vue=new Vue({
+		el:"#add",
+		data:{
+			flabel:"",
+			furl:"",
+			ftags:"",
+			fdesc:""
+		},
+		methods:{
+			add(){				
+				axios({
+					url:"fav.do",
+					params:{
+						flabel:this.flabel,
+						furl:this.furl,
+						ftags:this.ftags,
+						fdesc:this.fdesc
+					}							
+				}).then( (res)=>{
+					console.log(res.data);
+					if(res.data=="1"){
+						alert("添加成功！");
+						location.href="index.html";
+					}
+				});
+			}
+		}
+		
+	});
+	</script>
+</body>
+</html>
