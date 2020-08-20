@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="../js/vue.js"></script>
+</head>
+<body>
+	<div class="pageInfo">
+         <p>共{{total}}页</p>
+         <p>
+            <span @click="backHandle">上一页</span>
+            <span>{{pageNumber}}</span>
+            <span>/</span>
+            <span>{{pageTotal}}</span>
+            <span @click="nextHandle">下一页</span>
+         </p>
+      </div>
+	<script type="text/javascript">
+		var vue=new Vue({
+			el:".pageInfo",
+			data:{
+				total:10,
+				 page:0,
+				 pageTotal:0,
+				 pageNumber:1,
+			},
+			methods:{
+				// 上一页
+				         backHandle(){
+				            if(this.pageNumber>1){
+				               this.pageNumber--
+				               this.page-=4;
+				               this.newList = this.list.slice(this.page-4,this.page);
+				            }
+				         },
+				         // 下一页
+				         nextHandle(){
+				            if(this.pageNumber < this.pageTotal){
+				               let n=4;
+				               this.newList = this.list.slice(this.page,this.page+4);
+				               this.page+=4
+				            }
+				         },
+				         // 这个是获取列表，我直接在data中定义了一个简单的列表，来查看效果
+				         changeList(){
+				            this.total = this.list.length
+				            this.pageTotal = Math.ceil(this.list.length/4)
+				            const listLength = this.list.length
+				            this.newList = this.list.slice(this.page,this.page+4);
+				            this.page +=4;
+				            if(this.page>listLength){
+				               this.page = 0;
+				            }
+				         }
+			}
+		});
+	</script>
+</body>
+</html>

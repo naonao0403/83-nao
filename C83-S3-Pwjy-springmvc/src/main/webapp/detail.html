@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<link href="css/common.css" rel="stylesheet" type="text/css"/>
+<link href="css/product.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/vue.js"></script>
+<script type="text/javascript" src="js/axios.min.js"></script>
+<script type="text/javascript" src="js/comp.js"></script>
+<script type="text/javascript">
+//点赞功能
+// $(document).ready(function () {
+//     // likeClickCount
+//     $(".like-icon").on('click', function () {
+//         likeClickCount();
+//     })
+// })
+// // likeClickCount
+// function likeClickCount() {
+// //Number函数将对象的值转换成数字
+//     var like_num = Number($('.like-num').html());
+//     if ($('.like-icon').attr('data-key') == 'on') {
+//         $('.like-icon').addClass('on');
+//         // like-num add 
+//         like_num = like_num + 1; 
+//         $('.like-num').html(like_num);
+//         $('.like-icon').attr('data-key', '');
+//     } else {
+//         $('.like-icon').removeClass('on');
+//         like_num = like_num - 1;
+//         $('.like-num').html(like_num);
+//         $('.like-icon').attr('data-key', 'on');
+//     }
+// }
+
+</script>
+<title>大麦商城</title>
+</head>
+<body>
+
+<div id="header">	
+<page-head></page-head>
+</div>
+<script type="text/javascript">
+	var hvue=new Vue({el:"#header"});
+</script>
+
+<div class="container productContent">
+
+	
+
+		<div class="span6">
+		<div class="hotProductCategory">
+				<!-- 先循环菜单栏的 cname -->
+				<dl  v-for="m in Menu">
+						<dt >
+							<a :href=" 'clist.html#' +m.id" @click="tiao(m.id)" >{{m.cname}}</a>
+						</dt>
+						<dd v-for="c in CList" v-if="c.pid==m.id">
+							<a :href=" 'clist.html#' +c.pid" >{{c.cname}}</a>
+						</dd>		
+				</dl>	
+			</div>
+			<script type="text/javascript">
+						var currentPName=null;//循环时，当前板块名
+						var cevue=new Vue({
+							el:".hotProductCategory",
+							data:{
+								CList:[],//查询分类的商品
+								 Menu:[],//保存菜单栏
+							},
+							created:function(){
+								//获取侧栏菜单数据
+								axios.get("category.do?op=queryCategory").then( (res)=> {
+									this.CList=res.data.list;								
+								});
+								//显示菜单导航栏
+								axios.get("category.do?op=queryMenu").then(res=>{	
+									this.Menu=res.data;
+								});
+							},
+							methods:{
+								showParent(pname){
+									//如果当前父板块名与传过来的父板块相同，就不显示
+									if(pname==this.currentPName){
+										return false;
+									}else{
+										this.currentPName=pname;
+										return true;
+									}
+									
+								},
+								//用于页面刷新
+								tiao(id){
+									//location.href='clist.html#'+id;
+									location.reload();//页面刷新		
+								}
+							}
+						});					
+						
+			</script>
+		</div>
+	
+		<div id="span18" class="span18 last">
+			
+			<div class="productImage">
+					<a title="" style="outline-style: none; text-decoration: none;" id="zoom" href="http://image/r___________renleipic_01/bigPic1ea8f1c9-8b8e-4262-8ca9-690912434692.jpg" rel="gallery">
+						<div class="zoomPad">
+							<img style="opacity: 1;" title="" class="medium" :src="product.image">
+							<div style="display: block; top: 0px; left: 162px; width: 0px; height: 0px; position: absolute; border-width: 1px;" class="zoomPup"></div>
+							<div style="position: absolute; z-index: 5001; left: 312px; top: 0px; display: block;" class="zoomWindow">
+								<div style="width: 368px;" class="zoomWrapper"><div style="width: 100%; position: absolute; display: none;" class="zoomWrapperTitle"></div>
+									<div style="width: 0%; height: 0px;" class="zoomWrapperImage">
+									<img src="%E5%B0%9A%E9%83%BD%E6%AF%94%E6%8B%89%E5%A5%B3%E8%A3%852013%E5%A4%8F%E8%A3%85%E6%96%B0%E6%AC%BE%E8%95%BE%E4%B8%9D%E8%BF%9E%E8%A1%A3%E8%A3%99%20%E9%9F%A9%E7%89%88%E4%BF%AE%E8%BA%AB%E9%9B%AA%E7%BA%BA%E6%89%93%E5%BA%95%E8%A3%99%E5%AD%90%20%E6%98%A5%E6%AC%BE%20-%20Powered%20By%20Mango%20Team_files/6d53c211-2325-41ed-8696-d8fbceb1c199-large.jpg" style="position: absolute; border: 0px none; display: block; left: -432px; top: 0px;">
+									</div>
+								</div>
+							</div>
+							<div style="visibility: hidden; top: 129.5px; left: 106px; position: absolute;" class="zoomPreload">Loading zoom</div>
+						</div>
+					</a>
+				
+			</div>
+			<div class="name">{{product.pname}}</div>
+			<div class="sn">
+				<div>编号：{{product.id}}</div>
+			</div>
+			<div class="info">
+				<dl>
+					<dt>商城价:</dt>
+					<dd>
+						<strong>￥：{{product.shop_price}}元/份</strong>
+							参 考 价：
+							<del>￥{{product.market_price}}元/份</del>
+					</dd>
+				</dl>
+					<dl>
+						<dt>促销:</dt>
+						<dd>
+								<a target="_blank" title="限时抢购 (2014-07-30 ~ 2015-01-01)">限时抢购</a>
+						</dd>
+					</dl>
+					<dl>
+						<dt>    </dt>
+						<dd>
+							<span>    </span>
+						</dd>
+					</dl>
+			</div>
+				<div class="action">
+					<form action="cart.html" method="post">
+						<input type="hidden" name="pid" value="1"/>
+						<dl class="quantity">
+							<dt>购买数量:</dt>
+							<dd>
+								<input id="quantity" name="count" value="1" maxlength="4" onpaste="return false;" type="text">
+								<div>
+									<span id="increase" class="increase">&nbsp;</span>
+									<span id="decrease" class="decrease">&nbsp;</span>
+								</div>
+							</dd>
+							<dd>
+								件
+							</dd>
+						</dl>
+					<div class="buy">
+							<input @click="add()" id="addCart" class="addCart" value="加入购物车" type="button" style="margin-right: 5px;">
+							<input @click="cart()" id="payCart" class="addCart" value="立即结算" type="button">
+							
+					</div>
+				</form>				
+				</div>
+				
+				<!-- 点赞 -->
+				<div class="likeIcon-font" style="margin-top: 20px;">
+				喜欢我就给我点个赞吧！
+				</div>
+				<div class="likeIcon-wrap">
+		            <div @click="like()" class="like-icon" data-key="on">
+		            	<img v-if="isClick==0" src="images/white.png" style="width: 30px;height: 30px;"></img>
+		            	<img v-if="isClick==1" src="images/red.png" style="width: 30px;height: 30px;"></img>
+		            </div>
+		            <div class="like-num">{{clickNum}}</div>
+        		</div>
+        		
+        		
+			<div id="bar" class="bar">
+				<ul>
+						<li id="introductionTab">
+						
+							<a href="#introduction">商品介绍</a>
+						</li>
+						<li id="evaluationTab">
+						
+							<a href="#evaluation">商品评价</a>
+						</li>
+						
+				</ul>
+			</div>
+				
+				<div id="introduction" name="introduction" class="introduction">
+					<div class="title">
+						<strong>商品介绍</strong>
+					</div>
+					<div>
+						{{product.pdesc}}
+						<br /><br />
+						<img :src="product.image" align="middle"/>
+					</div>
+				</div>
+				
+				<div id="evaluation" name="introduction" class="introduction">
+					<div class="title">
+						<strong>宝贝评价</strong>
+					</div>
+					<div v-for="e in evaluate">
+						<template >
+						<img :src="e.uimage" style="height: 20px;width: 20px;">
+						<span>买家：{{e.ename}}</span>
+						<br />
+						<p>&nbsp;&nbsp;&nbsp;&nbsp;{{e.msg}}</p>
+						&nbsp;&nbsp;&nbsp;&nbsp;<span v-if="e.image"> <img  :src="e.image" align="middle" style="width:100px;height: 100px;"/> </span>
+						</template>
+						<br />
+						<br />
+					</div>
+				</div>
+				
+				
+		</div>
+		<script type="text/javascript">
+		var str=location.href; //取得整个地址栏		
+		str= str.match(/\?(\d*)/)[1];//使用正则表达式截取？后面的数字，有利于定位商品介绍及评价
+			var vue=new Vue({
+				el:".span18",
+				data:{
+					product:{},
+					clickNum:0,//点赞数量
+					isClick:0,//判断是否按下
+					evaluate:[],//该商品下的评论
+				},
+				created:function(){
+					//var id=location.hash.substring(1);
+				
+					console.log(str);
+					//商品详情
+					axios.get("product.do?op=queryById&id="+str).then( res=> {
+						this.product=res.data;
+					});
+					
+					//查询点赞总数
+					this.queryZan();
+					
+					//评论
+					axios.get("evaluate.do?op=queryByPid&pid="+str).then( res=> {
+						this.evaluate=res.data;
+					});
+					
+				},
+				methods:{
+					//加入购物车
+					//数量的加减没实现
+					add(){
+						axios.get("cart.do?op=add&pid="+this.product.id).then( res=> {
+							alert(res.data.msg);
+						});
+					},
+					//立即结算
+					cart(){
+						axios.get("cart.do?op=add&pid="+this.product.id).then( res=> {
+							//alert(res.data.msg);
+							if(res.data.code==1){
+								location.href='cart.html';
+							}
+						});
+						
+					},
+					//点赞和取消
+					like(){
+						
+						if(this.isClick==0){
+							//this.clickNum=this.clickNum+1;
+// 							console.log(this.clickNum);
+							axios.get("great.do?op=addZan&pid="+str).then( res=> {
+								if(res.data.msg==1){
+									//点赞
+									this.isClick=1;
+									this.queryZan();
+								}else if(res.data.msg==-1){
+									alert("您未登录！")
+								}
+							});
+							
+						}else{//取消赞
+							//this.isClick=0;
+							//this.clickNum=this.clickNum-1;
+							axios.get("great.do?op=cancelZan&pid="+str).then( res=> {
+								if(res.data.msg==1){
+									this.isClick=0;
+									this.queryZan();								
+								}else if(res.data.msg==-1){
+									alert("您未登录！")
+								}
+							});
+						}
+					},					
+					//查询点赞
+					queryZan(){
+						//查询点赞
+						axios.get("great.do?op=queryZan&pid="+str).then( res=> {
+							this.clickNum=res.data.cntZan;
+							if(res.data.msg==1){
+								this.isClick=1;
+							}
+						});
+					}
+				}
+			});
+			
+		</script>
+		
+		
+	</div>
+	
+<div id="footer">
+<page-foot></page-foot>
+</div>
+<script type="text/javascript">
+	new Vue({el:"#footer"});
+</script>
+
+</body>
+</html>

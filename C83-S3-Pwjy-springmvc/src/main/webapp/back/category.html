@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商品分类管理</title>
+<link rel="stylesheet" type="text/css"
+	href="easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="easyui/themes/icon.css">
+<script type="text/javascript" src="easyui/jquery.min.js"></script>
+<script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="../js/axios.min.js"></script>
+<style type="text/css">
+	input {
+		width: 200px;
+	}
+	button {
+		width: 70px;
+		height: 35px;
+		border-radius:5px;
+		cursor: pointer;		
+	}
+</style>
+<script type="text/javascript">
+	
+	//图片字段的格式化方法
+	function fmtImg(value, row, index) {
+		//  <img height='100px' src='../products/1/cs10001.jpg'>   
+		return "<img height='100px' src='../"+value+"'>";
+	}
+	
+	// 出版时间字段的格式化方法
+	function fmtDate(date){
+		var y = date.getFullYear();
+		var m = date.getMonth()+1;
+		var d = date.getDate();
+		return y + "-" + m + '-' + d;
+	}
+	
+	//重置
+	function reset() {
+		$("#cname").textbox('setValue',"");
+		$("#pid").textbox('setValue',"");
+		location.href="category.html";
+	}
+	//查询
+	function query(){
+		$('#dg').datagrid('load',{
+			cname: $("#cname").textbox('getValue'),
+			pid: $("#pid").textbox('getValue'),
+		});
+	}
+	
+	// 操作字段的格式化方法
+	function fmtOp(value, row, index) {
+		return "<button onclick='edit("+index+")'>修改</button>&nbsp; &nbsp;<button onclick='del("+index+")'>删除</button>";
+	}
+	
+	// 打开修改窗口
+	function edit(index) {
+		$("#dd").dialog('open');
+		// index 有值 就是修改表格中的某一行记录, 否则是新增
+		// edit() 不传参数 index 为 undefined
+		if(index != undefined){
+			var rows = $('#dg').datagrid("getRows");
+			$('#ff').form('load',rows[index]);
+		} else {
+			$('#ff').form('clear');
+		}
+	}
+	//删除
+	function del(index) {		
+		var row = $('#dg').datagrid('getSelected');
+		var id;
+		if(row){
+			id=row.id;
+			var flag=false;
+			if(confirm("确定要删除吗?")){
+		        flag=true;
+		     }else{
+			    flag=false;
+			 }
+			if(flag==true){
+				//兰姆达表达式写法， =>箭头写法
+				axios({
+					url:"../category.do?op=delCategory",
+					params:{
+						id:id
+					}
+					//function(res){} 的简写 (res)=>{}
+				}).then( (res)=>{
+					//axios 方法会自动转JSON对象
+					alert(res.data);
+					window.location.href = 'category.html';
+				});
+			}
+		}else{
+			alert("请选择你要删除的记录！")
+		}
+	}
+	//保存
+	function save() {
+		// easyui 的表单的ajax提交方式
+		$('#ff').form('submit',{
+			url : "../category.do",
+			onSubmit: function(param){
+				//  扩展请求参数
+				param.op = "save";
+			},
+			success : res=>{
+				// 原有的 res ==> 消息, 现在的 res ==> json对象  {  code , msg, data }
+				res = JSON.parse(res);
+				alert(res.msg);
+				if(res.code == 1 ){
+					// 关闭窗口
+					$("#dd").dialog('close');
+					// 刷新表格
+					$('#dg').datagrid("reload");
+				}
+				// 否则什么都不做 
+			}
+		});
+	}
+	
+	//取消按钮关闭dialog窗口
+	function cancel() {	
+		$('#dd').dialog('close');
+		$('#dg').datagrid('reload');
+		//刷新当前页面回到主页面
+		//window.location.href = 'product.html';
+	}
+	
+	function upload(newValue, oldValue){
+		var url = "../UploadServlet";
+		/**
+		products/upload/程序员.jpg
+		
+		product.html:85 Uncaught TypeError: 
+			Failed to construct 'FormData': 
+				parameter 1 is not of type 'HTMLFormElement'.
+		*/
+		var fd = new FormData(ff);
+		axios.post( url, fd).then(res=>{
+			alert(res.data.msg);
+			if(res.data.code){
+				// upImg 是原生的 html 控件对象
+				upImg.src = "../" + res.data.data;
+				// tbImg 是Easyui的 控件对象
+				$("#tbImg").textbox('setValue',res.data.data);
+			}
+		});
+	}
+	
+</script>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'" style="height:50px;text-align: center; margin-top:10px;padding-left: 10px">
+				<!-- prompt="书名:"  ==  data-options="prompt:'书名:'" -->
+			<div style="height: 50px; margin: 10px">
+			名称:<input class="easyui-textbox" label="" style="width:200px" id="cname">
+			分类:<input class="easyui-combobox" label="" style="width:200px" id="pid"
+			data-options=" url:'../category.do?op=queryMenu',valueField:'id', textField:'cname'">
+			<a id="btn" href="javascript:void(0)" class="easyui-linkbutton"
+				data-options="iconCls:'icon-search'"
+				onclick="query()">查询</a>
+			<a id="btn1" href="javascript:void(0)" class="easyui-linkbutton"
+				data-options="iconCls:'icon-add'"
+				onclick="edit()">添加</a>
+			<a id="btn2" href="javascript:void(0)" class="easyui-linkbutton" 
+				data-options="iconCls:'icon-reload'" 
+				onclick="reset()">重置</a>
+			</div>
+		</div>
+		<div data-options="region:'center',title:'查询结果', iconCls:'icon-ok'" style="text-align: center;">
+			<table class="easyui-datagrid" id="dg"
+				data-options="
+				url:'../category.do?op=queryCategorys',
+				method:'get',
+				border:false,
+				singleSelect:true,
+				fit:true,
+				fitColumns:true,
+				pagination:true" style="text-align: center;">
+				<thead>
+					<tr>
+						<th data-options="field:'id', width:20,align:'center'">编号</th>
+						<th data-options="field:'cname', width:100,align:'center'">名称</th>
+						<th data-options="field:'cpname', width:100,align:'center'">分类</th>
+						<th data-options="field:'idd', width:100, formatter:fmtOp,align:'center'">操作</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+	
+	<!-- 图书编辑窗口 -->
+	<div id="dd" class="easyui-dialog" title="添加修改页面" style="width:300px;height:300px;padding-top: 50px;text-align: center;"
+	    data-options="
+	    iconCls:'icon-save',
+	    resizable:true,
+	    modal:true,
+	    closed:true,
+	    buttons:'#bb'" >
+	    <form id="ff" style="text-align: center;">
+	  	 编号: <input class="easyui-textbox" name="id" label="" readonly="true"><br>
+	   	名称:<input class="easyui-textbox" name="cname" label=""><br>
+		分类:<input class="easyui-combobox" name="pid" label=""
+			data-options="url:'../category.do?op=queryMenu', valueField:'id', textField:'cname'"><br>
+		</form>
+	</div>
+	<div id="bb">
+		<a href="javascript:void(0)" class="easyui-linkbutton" onclick="save()">保存</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" onclick="cancel()">取消</a>
+	</div>
+	
+	
+	
+</body>
+</html>

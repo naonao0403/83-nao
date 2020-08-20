@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>大麦商城</title>
+<link href="css/login.css" rel="stylesheet" type="text/css" />
+<link href="css/common.css" rel="stylesheet" type="text/css" />
+<link href="css/product.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/vue.js"></script>
+<script type="text/javascript" src="js/axios.min.js"></script>
+<script type="text/javascript" src="js/comp.js"></script>
+<link rel="stylesheet" type="text/css"
+	href="back/easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css"
+	href="back/easyui/themes/icon.css">
+<script type="text/javascript" src="back/easyui/jquery.min.js"></script>
+<script type="text/javascript" src="back/easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript"
+	src="back/easyui/locale/easyui-lang-zh_CN.js"></script>
+
+<style type="text/css">
+.text1 {
+	font-size: x-large;
+	/* 	margin-left: 3px; */
+	text-align: center;
+}
+
+.text1 input {
+	text-align: center;
+}
+
+.text {
+	font-size: 20px;
+}
+/*斗篷样式*/
+[v-cloak] {
+	visibility: hidden; /*display:none*/
+}
+
+#tb2 th {
+	line-height: 36px;
+	padding: 0px 6px;
+	color: #999999;
+	font-weight: normal;
+	text-align: center;
+	border: solid 1px #e6e4e3;
+	background-color: #fafafa;
+}
+
+#tb2 td {
+	line-height: 36px;
+	padding: 0px 6px;
+	color: #999999;
+	font-weight: normal;
+	text-align: center;
+	border: solid 1px #e6e4e3;
+/* 	background-color: #fafafa; */
+}
+
+#tb input{
+	margin-top:10px;
+	padding-top: 10px;
+	border-radius: 5px;
+	margin-left:2px;
+	width: 200px;
+}
+
+
+#ff input{
+	margin-top: 20px;
+	padding-top: 10px;
+	border-radius: 5px;
+	margin-left:2px;
+
+}
+</style>
+
+
+</head>
+<body>
+
+
+
+	<div id="header">
+		<page-head></page-head>
+	</div>
+	<script type="text/javascript">
+	var hvue=new Vue({el:"#header"});
+</script>
+	<div id="addr">
+		<div class="container productList">
+
+
+			<div class="span6">
+				<div class="hotProductCategory"
+					style="font-size: 17px; font-weight: bold;">
+					<!-- 先循环菜单栏的 cname -->
+					<dl>
+						<dd>
+							<a href='person.html'>个人信息</a>
+						</dd>
+						</br>
+						<dd>
+							<a href='addr.html'>地址管理</a>
+						</dd>
+						</br>
+						<dd>
+							<a href='passmodify.html'>修改密码</a>
+						</dd>
+
+					</dl>
+				</div>
+			</div>
+
+
+
+			<div class="span12 last">
+				<div class="wrap">
+					<div class="main"
+						style="background-color: #F6F6F6; text-align: center;">
+						<div class="text1">
+							<br> <strong>地址管理</strong>
+						</div>
+						<br>
+						<div class="title"></div>
+						<form id="loginForm" action=""
+							style="text-align: center; margin-left: 80px" method="post"
+							novalidate="novalidate">
+							<table id="tb" style="text-align: center;">
+								<tbody>
+									<tr>
+										<th>收获地址:</th>
+										<td><input v-model="addr" type="text" 
+											maxlength="20" /></td>
+									</tr>
+									<tr>
+										<th>&nbsp;</th>
+
+									</tr>
+									<tr>
+										<th>电话号码:</th>
+										<td><input v-model="phone" type="text" 
+											maxlength="20" /></td>
+									</tr>
+									<tr>
+										<th>&nbsp;</th>
+
+									</tr>
+									<tr>
+										<th>收件人:</th>
+										<td><input v-model="name" type="text" 
+											maxlength="20" /></td>
+									</tr>
+									<tr>
+										<th>&nbsp;</th>
+
+									</tr>
+									<tr>
+										<th>设置为默认地址:</th>
+										<td><input v-model="dft" id="checkbox" type="checkbox" /></td>
+									</tr>
+
+									<tr>
+										<th>&nbsp;</th>
+
+									</tr>
+								</tbody>
+							</table>
+						</form>
+						<div style="text-align: center; margin-top: 20px;">
+							<button class="button" @click="add()">新增</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+		</div>
+		<div style="margin-top: 20px; width: 1000px;">
+			<div style="font-size: 20px; font-weight: bold; margin-left: 300px;">已有地址</div>
+			<table id="tb2" style="width: 100%; margin-left: 300px;">
+				<tbody>
+					<tr>
+						<th>收件人</th>
+						<th>地址</th>
+						<th>电话号码</th>
+						<th>地址类型</th>
+						<th>操作</th>
+					</tr>
+					<tr v-for="a in addrs">	
+						<td>{{a.name}}</td>
+						<td>{{a.addr}}</td>
+						<td>{{a.phone}}</td>
+						<td><span v-if="a.dft==1">默认地址</span><span v-else>其他地址</span></td>
+						<td><a href="javascript:void(0)"  @click="update(a.id)">修改</a>&nbsp;&nbsp;
+						<a v-if="a.dft!=1" href="javascript:void(0)" @click="del(a.id)">删除</a>&nbsp;&nbsp;
+						<a v-if="a.dft!=1" href="javascript:void(0)" @click="setDft(a.id)">设为默认</a></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		
+		
+		<div id="dd" class="easyui-dialog" title="地址编辑" style="width:500px;height:500px;padding-top: 50px"
+    data-options="iconCls:'icon-save',
+    resizable:false,
+    modal:true,
+    closed:true,
+    buttons:'#bb',
+    align:'center'" >
+    	<form id="ff" style="text-align: center;" v-for="o in oneaddr">
+	   		编	号:<input v-model="o.id"  class="easyui-textbox"  name="id" readonly="true" ><br>
+<!-- 	   		用	户:<input v-model="o.uid"  class="easyui-textbox" name="uid" disabled="true" ><br>   -->
+			收件人:<input v-model="o.name"  class="easyui-textbox"  name="name"> <br>
+			地	址:<input v-model="o.addr"  class="easyui-textbox" name="addr"> <br>
+			电	话:<input v-model="o.phone"   class="easyui-textbox"  name="phone"> <br>
+		</form>
+	</div>
+	
+	<div id="bb">
+	<a href="javascript:void(0)" class="easyui-linkbutton" @click="save()">保存</a>
+	<a href="javascript:void(0)" class="easyui-linkbutton" @click="cancel()">取消</a>
+	</div>
+		
+		
+	</div>
+	
+	
+		
+	
+	<script type="text/javascript">
+			var vue=new Vue({
+				el:"#addr",
+				data:{
+					addrs:{},//获取数据库所有地址
+					oneaddr:[],//修改地址
+					addr:"",
+					phone:"",
+					name:"",
+					dft:0,
+				},
+				created:function(){
+					//获取登录的用户名或密码
+					axios.get("addr.do?op=getAddr").then( (res)=> {
+						if(res.data){
+							this.addrs=res.data;
+						}
+					});
+				},
+				methods:{
+					//新增地址
+					add(){
+						if(checkbox.checked){
+							this.dft=1;
+						}else{
+							this.dft=0;
+						}
+						axios({
+							url:"addr.do?op=add",
+							params:{
+								//前面是请求参数值，后面是vue的变量值 						
+								addr:this.addr,
+								phone:this.phone,
+								name:this.name,
+								dft:this.dft,
+							}							
+						}).then( (res)=>{
+							alert(res.data.msg);
+							if(res.data.code){
+								location.href = 'addr.html';	
+							}	
+						});
+							
+					},
+					//编辑窗口
+					update(id){		
+						if(id != undefined){
+							//获取登录的用户名或密码
+							axios.get("addr.do?op=selectByAid&id="+id).then( (res)=> {
+								if(res.data){
+									this.oneaddr=res.data;
+									
+								}else{
+									alert("打开错误");
+									$('#dd').dialog('close');
+								}
+							});
+							$('#dd').dialog('open');
+							
+						}
+					},
+					//修改保存
+					save(id){
+						$('#ff').form('submit',{
+							url:"addr.do",
+							onSubmit:function (param) {
+								//扩展请求参数
+								param.op="save";
+							},
+							success:res=>{
+								//原有的res==>消息	现在的res==》JSON对象(code,msg,data)
+								res=JSON.parse(res);
+								alert(res.msg);
+								if(res.code==1){
+									$('#dd').dialog('close');
+									//刷新当前页面回到主页面
+									location.href = 'addr.html';
+								}
+								
+							}
+						});
+					},
+					
+					//取消按钮关闭dialog窗口
+					cancel() {	
+						$('#dd').dialog('close');
+						
+					},
+					//删除
+					del(id){
+						axios.get("addr.do?op=del&id="+id).then( res=> {
+							alert(res.data.msg);
+							if(res.data.code==1){
+								location.href="addr.html";
+							}
+						});
+					},
+					//设置默认地址
+					setDft(id){
+						axios.get("addr.do?op=updateDft&id="+id).then( res=> {
+							alert(res.data.msg);
+							if(res.data.code==1){
+								location.href="addr.html";
+							}
+						});
+					}
+				}
+					
+				
+			});
+		</script>
+
+	<div id="footer">
+		<page-foot></page-foot>
+	</div>
+	<script type="text/javascript">
+	new Vue({el:"#footer"});
+</script>
+</body>
+</html>

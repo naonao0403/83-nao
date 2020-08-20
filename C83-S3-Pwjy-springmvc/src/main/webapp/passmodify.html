@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>大麦商城</title>
+<link href="css/login.css" rel="stylesheet" type="text/css"/>
+<link href="css/common.css" rel="stylesheet" type="text/css"/>
+<link href="css/product.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="js/vue.js"></script>
+<script type="text/javascript" src="js/axios.min.js"></script>
+<script type="text/javascript" src="js/comp.js"></script>
+<link rel="stylesheet" type="text/css"
+	href="back/easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="back/easyui/themes/icon.css">
+<script type="text/javascript" src="back/easyui/jquery.min.js"></script>
+<script type="text/javascript" src="back/easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="back/easyui/locale/easyui-lang-zh_CN.js"></script>
+
+ <style type="text/css">
+       
+        .text1{
+            font-size: x-large;
+            
+            margin-left: 3px;
+        }
+         .text{
+            font-size: 20px;
+            
+           
+        }
+      /*斗篷样式*/
+		[v-cloak]{
+		visibility:hidden;/*display:none*/}
+    </style>
+   
+		
+</head>
+<body>
+
+	
+	
+<div id="header">	
+<page-head></page-head>
+</div>
+<script type="text/javascript">
+	var hvue=new Vue({el:"#header"});
+</script>
+
+<div class="container productList">
+	
+
+		<div class="span6">
+			<div class="hotProductCategory" style="font-size: 17px;font-weight: bold;">
+				<!-- 先循环菜单栏的 cname -->
+				<dl >
+						<dd >
+							<a href= 'person.html' >个人信息</a>
+						</dd>
+						</br>
+						<dd >
+							<a href= 'addr.html' >地址管理</a>
+						</dd>
+						</br>
+						<dd >
+							<a href= 'passmodify.html' >修改密码</a>
+						</dd>
+							
+				</dl>	
+			</div>
+</div>
+		
+		
+		  
+		<div id="modify" class="span12 last">
+			<div class="wrap">
+				<div class="main" style="background-color: #F6F6F6;text-align: center;">
+					<div class="text1"><br>
+					
+						<strong>密码修改</strong>
+					</div><br>
+					<div class="title">
+						
+					</div>
+					<form id="loginForm" action="" style="text-align: center;margin-left: 80px"  method="post" novalidate="novalidate" >
+						<table style="text-align: center;">
+							<tbody><tr>
+								<th >
+										用户名:
+								</th>
+								<td  class="text">
+									<span v-cloak>{{uname}}</span>
+								</td>
+							</tr>
+							<tr>
+								<th><br>
+									原密码:
+								</th>
+								<td><br></br>
+									<input v-model="upass" type="password" id="upass" name="password" class="text" maxlength="20" /><span></span>
+								</td>
+							</tr>
+							<tr>
+								<th><br>
+									新密码:
+								</th>
+								<td><br></br>
+									<input v-model="newpass" type="password" id="newpass" name="password" class="text" maxlength="20" /><span></span>
+								</td>
+							</tr>
+							<tr>
+								<th><br>
+									确认密码:
+								</th>
+								<td><br></br>
+									<input v-model="repass" type="password" id="repass" name="newpass" class="text" maxlength="20"  /><span></span>
+								</td>
+							</tr>
+								
+							<tr>
+								<th>&nbsp;
+									
+								</th>
+								
+							</tr>
+							<tr>
+								<th>&nbsp;
+									
+								</th>
+								<td>
+									<input @click="save()" type="button" class="submit" value="保 存">
+								</td>
+							</tr>
+							
+						</tbody></table>
+					</form>
+				</div>
+			</div>
+		</div>
+
+<script type="text/javascript">
+			var vue=new Vue({
+				el:"#modify",
+				data:{
+					loginUser:{},
+					uname:"",
+					pass:"",
+					upass:"",
+					repass:"",
+					newpass:"",
+				},
+				created:function(){
+					//获取登录的用户名或密码
+					axios.get("user.do?op=getUser").then( (res)=> {
+						if(res.data){
+							//获取登录的用户名,就是账号
+							this.uname=res.data.ename;
+							this.upass=res.data.password;
+							
+						}
+					});
+				},
+				methods:{
+					save(){
+						axios({
+							url:"user.do?op=updatePass",
+							params:{
+								//前面是请求参数值，后面是vue的变量值 						
+								ename:this.uname,
+								upass:this.upass,
+								repass:this.repass,
+								newpass:this.newpass,
+							}
+							
+						}).then( (res)=>{
+							alert(res.data.msg);
+							if(res.data.code){
+								window.location.href = 'login.html';	
+							}	
+						});
+						
+
+						
+					}
+				}
+					
+				
+			});
+		</script>
+		
+<div id="footer">
+<page-foot></page-foot>
+</div>
+<script type="text/javascript">
+	new Vue({el:"#footer"});
+</script>
+
+</body></html>

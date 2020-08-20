@@ -11,7 +11,8 @@
          http://www.springframework.org/schema/tx
         https://www.springframework.org/schema/tx/spring-tx.xsd
          http://www.springframework.org/schema/aop
-        https://www.springframework.org/schema/aop/spring-aop.xsd">
+        https://www.springframework.org/schema/aop/spring-aop.xsd
+       ">
      
      <!-- context 命名空间的标签 需要单独引入 -->
      <!-- 引入属性条件 -->

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>大麦商城</title>
+<link href="css/common.css" rel="stylesheet" type="text/css"/>
+<link href="css/cart.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="js/vue.js"></script>
+<script type="text/javascript" src="js/axios.min.js"></script>
+<script type="text/javascript" src="js/comp.js"></script>
+</head>
+<body>
+
+<div id="header">	
+<page-head></page-head>
+</div>
+<script type="text/javascript">
+	var hvue=new Vue({el:"#header"});
+</script>
+
+<div  class="container cart">
+
+		<div id="orders" class="span24">
+		
+			<div class="step step1">
+				<ul>
+					
+					<li  class="current"></li>
+					<li  >订单列表</li>
+				</ul>
+			</div>
+				<table style="text-align: center;">
+					<tbody v-for="o in oList" >
+					<tr>
+						<th colspan="6">
+						订单号:{{o.id}} 
+						金额:<font color="red">{{o.total}}</font>
+						状态 :<span v-if="o.state==0">未付款 </span><span v-else-if="o.state==1" style="color: orange;">已付款 </span>
+						<span v-else-if="o.state==2" style="color: orange;">卖家已发货 </span><span v-else-if="o.state==3" style="color: orange;">已收货 </span>
+						<span v-else-if="o.state==4" style="color: orange;">已评价 </span><span v-else-if="o.state==1" style="color: orange;">已退款 </span>
+						<a v-if="o.state==0" :href=" 'pay.html#'+o.id"><font color="red">去付款</font></a>
+						<a v-if="o.state==2" @click="shouhuo(o.id)" href="javascript:void(0)"><font color="green">确认收货</font></a>
+						</th>
+					</tr>
+					<tr >
+						<th style="text-align: center;">图片</th>
+						<th style="text-align: center;">商品</th>
+						<th style="text-align: center;">价格</th>
+						<th style="text-align: center;">数量</th>
+						<th style="text-align: center;">小计</th>
+						<th style="text-align: center;">交易操作</th>
+					</tr>
+					<tr v-for="op in opList" v-if="o.id==op.oid">
+							<td width="60">
+								<img :src="op.image"/>
+							</td>
+							<td>
+								<a :href=" 'detail.html?'+ op.id " target="_blank">{{op.pname}}</a>
+							</td>
+							<td>
+								{{op.shop_price}}
+							</td>
+							<td class="quantity" width="60">
+									{{op.count}}							
+							</td>
+							<td width="140">
+								<span class="subtotal">￥{{op.shop_price*op.count}}</span>
+							</td>
+							<td  width="100" style="text-align: center;">
+								
+								<span v-if="o.state==3"><a  :href=" 'evaluate.html?'+op.id +'#' + o.id">评价</a>	</span>						
+							</td>
+					</tr>
+
+				</tbody>
+				
+			</table>
+				
+			
+		</div>
+		
+		
+	</div>
+	<script type="text/javascript">
+		var vue=new Vue({
+			el:"#orders",
+			data:{
+				oList:[],//订单
+				opList:[],//订单商品详情
+				state:"",//付款状态
+			},
+			created:function(){
+				axios.get("orders.do?op=queryOrder").then( res=> {
+					this.opList=res.data.oplist;
+					this.oList=res.data.olist;
+				});
+			},
+			methods:{
+				shouhuo(oid){
+					axios.get("orders.do?op=shouHuo&oid="+oid).then( res=> {
+							if(res.data){
+								//确认收货
+								alert(res.data);
+						    	location.href="olist.html";
+							}
+					});
+				},
+// 				show(pid,oid){
+// 					axios.get("orderitem.do?op=selectByPid&pid="+pid+"&oid="+oid).then( res=> {
+// 						if(res.data.code==1){
+// 							console.log("已经评论");
+// 							this.pstate=1;
+// 							return true;
+// 						}else{
+// 							return false;
+// 						}
+						
+// 					});
+// 				}
+			}
+		});
+	
+	</script>
+	
+	
+<div id="footer">
+<page-foot></page-foot>
+</div>
+<script type="text/javascript">
+	new Vue({el:"#footer"});
+</script>
+
+</body>
+</html>

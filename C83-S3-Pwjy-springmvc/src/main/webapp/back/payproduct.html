@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商品管理</title>
+<link rel="stylesheet" type="text/css" href="easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="easyui/themes/icon.css">
+<style type="text/css">
+	input {
+		width: 200px;
+	}
+	button {
+		width: 70px;
+		height: 35px;
+		border-radius:10px;
+		cursor: pointer;	
+		color:white;
+		background-color: blue;	
+	}
+</style>
+<script type="text/javascript" src="easyui/jquery.min.js"></script>
+<script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+<!-- 基于promise技术专门用于ajax调用的js -->
+<script type="text/javascript" src="../js/axios.min.js"></script>
+<script type="text/javascript">
+	//图片显示
+	function fmtImg(value,row,index){
+		return "<img height='100px' src='../"+value+"'>";
+	}
+	
+	//查询
+	function query(){
+		$('#dg').datagrid('load',{
+		   pname:$("#pname").textbox('getValue'),
+		   id:$("#oid").textbox('getValue')
+		});
+	}
+	//操作字段的格式化方法
+	function fmtOp(value,row,index) {
+		return "<span style='color:red;'>买家已付款</span><br><a href='javascript:void(0)' onclick='xiangqing("+index+")'>订单详情</a><br><br><button onclick='fahuo("+index+")'>发货</button>";
+	}
+	
+	//发货
+	function fahuo(index) {		
+		var row = $('#dg').datagrid('getSelected');
+		var id;
+		if(row){
+			id=row.id;
+			var flag=false;
+			if(confirm("确定要发货吗?")){
+		        flag=true;
+		     }else{
+			    flag=false;
+			 }
+			if(flag==true){
+				//兰姆达表达式写法， =>箭头写法
+				axios({
+					url:"../orders.do?op=faHuo",
+					params:{
+						oid:id
+					}
+				}).then( (res)=>{
+					//axios 方法会自动转JSON对象
+					alert(res.data);
+					window.location.href ='payproduct.html';
+				});
+			}
+		}else{
+			alert("请选择你要发货的宝贝！")
+		}
+	}
+	
+	//打开详情窗口
+	function xiangqing(index) {
+		$('#dd').dialog('open');	
+		if(index != undefined){
+			//修改某一行记录
+			//edit()不传参数，就是undefined
+			var rows=$('#dg').datagrid("getRows");
+			var id=rows[index].id;
+			//alert(id);
+			$('#ff').form('load',rows[index]);
+			$('#dg1').datagrid('load',{
+				   id:id
+			});
+		}
+		
+	}
+	
+</script>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'" style="height: 50px;text-align: center; padding-top: 10px;padding-left: 10px">
+			宝贝名称:<input class="easyui-textbox" style="width:200px" id="pname"> 
+			订单编号:<input class="easyui-textbox" style="width:200px" id="oid"> 
+			<a id="btn" href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="query()">查询</a>
+		</div>
+		<div data-options="region:'center',title:'等待发货',iconCls:'icon-ok'" style="text-align: center;">
+			<table class="easyui-datagrid" id="dg"
+				data-options="url:'../orders.do?op=queryPayOrders',
+				method:'get',
+				border:false,
+				singleSelect:true,
+				fit:true,
+				pagination:true,
+				fitColumns:true" style="text-align: center;">
+				<thead>				
+					<tr>
+					<th data-options="field:'id' ,width:100,align:'center'">订单编号</th>
+					<th data-options="field:'createtime' ,width:100,align:'center'">交易时间</th>
+					<th data-options="field:'image',
+ 						width:100,
+ 						formatter:fmtImg,
+ 						 align:'center'">图片</th>
+						<th data-options="field:'pname' ,width:100,align:'center'">宝贝名称</th>
+						<th data-options="field:'price' ,width:100,align:'center'">单价（元）</th>
+						<th data-options="field:'count' ,width:100,align:'center'">数量</th>
+						<th data-options="field:'ename' ,width:100,align:'center'">买家</th>
+						<th data-options="field:'total',width:100,align:'center'">实收款（元）</th>		
+ 						 <!-- 使用一个不存在的字段名 -->
+ 						<th data-options="field:'idd' ,width:100,formatter:fmtOp,align:'center'">发货管理</th>
+ 						 
+					</tr>
+				</thead>
+			</table>
+		</div>
+		
+	</div>
+	
+	<!-- 商品编辑窗口 -->
+	<div id="dd" class="easyui-dialog" title="订单详情" style="width:90%;height:90%;padding-top: 50px"
+    data-options="iconCls:'icon-save',
+    resizable:false,
+    modal:true,
+    closed:true,
+    buttons:'#bb',
+    align:'center'">
+    <form id="ff" style="text-align: center;">
+    	订单编号:<input  class="easyui-textbox" name="id" readonly="true">
+    	交易时间:<input  class="easyui-textbox" name="createtime" readonly="true">
+    	订单总金额:<input  class="easyui-textbox" name="total" readonly="true">
+    </form>
+    <br>
+    <table class="easyui-datagrid" id="dg1"
+				data-options="url:'../orders.do?op=queryPayOrdersItem',
+				method:'get',
+				border:false,
+				singleSelect:true,
+				fit:true,
+				pagination:true,
+				fitColumns:true" style="text-align: center;">
+				<thead>				
+					<tr>
+					<th data-options="field:'id' ,width:100,align:'center'">订单编号</th>
+					<th data-options="field:'createtime' ,width:100,align:'center'">交易时间</th>
+					<th data-options="field:'image',
+ 						width:100,
+ 						formatter:fmtImg,
+ 						 align:'center'">图片</th>
+						<th data-options="field:'pname' ,width:100,align:'center'">宝贝名称</th>
+						<th data-options="field:'price' ,width:100,align:'center'">单价（元）</th>
+						<th data-options="field:'count' ,width:100,align:'center'">数量</th>
+						<th data-options="field:'ename' ,width:100,align:'center'">买家</th>
+						<th data-options="field:'total',width:100,align:'center'">实收款（元）</th>		 						 
+					</tr>
+				</thead>
+		</table>
+		
+	</div>
+	
+	
+</body>
+</html>

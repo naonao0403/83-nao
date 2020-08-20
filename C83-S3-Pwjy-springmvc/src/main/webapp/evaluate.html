@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>大麦商城_发表评价</title>
+<link href="css/common.css" rel="stylesheet" type="text/css" />
+<link href="css/cart.css" rel="stylesheet" type="text/css" />
+<link href="css/product.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+.file {
+    position: relative;
+    display: inline-block;
+    background: #D0EEFF;
+    border: 1px solid #99D3F5;
+    border-radius: 4px;
+    padding: 4px 12px;
+    overflow: hidden;
+    color: #1E88C7;
+    text-decoration: none;
+    text-indent: 0;
+    line-height: 20px;
+    margin-left:105px;
+}
+.file input {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+.file:hover {
+    background: #AADFFD;
+    border-color: #78C3F3;
+    color: #004974;
+    text-decoration: none;
+}
+</style>
+<script type="text/javascript" src="js/vue.js"></script>
+<script type="text/javascript" src="js/axios.min.js"></script>
+<script type="text/javascript" src="js/comp.js"></script>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript">
+function upload(newValue,oldValue) {
+	//alert("文件");
+	var url="UploadServlet.do";
+	var fd=new FormData(ff); 
+	axios.post(url,fd).then( res=>{
+		alert(res.data.msg);
+		if(res.data.code){
+			//upImg是原生的HTML控件对象
+			if(res.data.data.indexOf("/")!=0){
+				// 以../开头的图片
+				image.src="../"+res.data.data;
+			}else{
+				// 以/开头的图片(上传的图片)
+				image.src=res.data.data;
+			}
+			//tbImg 是easyui的控件对象
+			vue.$data.imageurl=res.data.data;
+			console.log(vue.$data.imageurl);
+		}
+	});
+}
+</script>
+</head>
+<body>
+
+	<div id="header">
+		<page-head></page-head>
+	</div>
+	<script type="text/javascript">
+	var hvue=new Vue({el:"#header"});
+</script>
+	<div id="evaluate" class="container productContent">
+		<div id="span18" class="span18 last" style="margin-left: 150px">
+
+			<div class="productImage">
+				<a title="" style="outline-style: none; text-decoration: none;"
+					id="zoom"
+					href="http://image/r___________renleipic_01/bigPic1ea8f1c9-8b8e-4262-8ca9-690912434692.jpg"
+					rel="gallery">
+					<div class="zoomPad">
+						<img style="opacity: 1;" title="" class="medium"
+							:src="product.image">
+						<div
+							style="display: block; top: 0px; left: 162px; width: 0px; height: 0px; position: absolute; border-width: 1px;"
+							class="zoomPup"></div>
+						<div
+							style="position: absolute; z-index: 5001; left: 312px; top: 0px; display: block;"
+							class="zoomWindow">
+							<div style="width: 368px;" class="zoomWrapper">
+								<div style="width: 100%; position: absolute; display: none;"
+									class="zoomWrapperTitle"></div>
+								<div style="width: 0%; height: 0px;" class="zoomWrapperImage">
+									<img
+										src="%E5%B0%9A%E9%83%BD%E6%AF%94%E6%8B%89%E5%A5%B3%E8%A3%852013%E5%A4%8F%E8%A3%85%E6%96%B0%E6%AC%BE%E8%95%BE%E4%B8%9D%E8%BF%9E%E8%A1%A3%E8%A3%99%20%E9%9F%A9%E7%89%88%E4%BF%AE%E8%BA%AB%E9%9B%AA%E7%BA%BA%E6%89%93%E5%BA%95%E8%A3%99%E5%AD%90%20%E6%98%A5%E6%AC%BE%20-%20Powered%20By%20Mango%20Team_files/6d53c211-2325-41ed-8696-d8fbceb1c199-large.jpg"
+										style="position: absolute; border: 0px none; display: block; left: -432px; top: 0px;">
+								</div>
+							</div>
+						</div>
+						<div
+							style="visibility: hidden; top: 129.5px; left: 106px; position: absolute;"
+							class="zoomPreload">Loading zoom</div>
+					</div>
+				</a>
+
+			</div>
+			<div class="name">{{product.pname}}</div>
+			<div class="sn">
+				<div>编号：{{product.id}}</div>
+			</div>
+			<div class="info">
+				<dl>
+					<dt>商城价:</dt>
+					<dd>
+						<strong>￥：{{product.shop_price}}元/份</strong> 参 考 价：
+						<del>￥{{product.market_price}}元/份</del>
+					</dd>
+				</dl>
+				<dl>
+					<dt>促销:</dt>
+					<dd>
+						<a target="_blank" title="限时抢购 (2014-07-30 ~ 2015-01-01)">限时抢购</a>
+					</dd>
+				</dl>
+				<dl>
+					<dt></dt>
+					<dd>
+						<span> </span>
+					</dd>
+				</dl>
+			</div>
+			
+			
+
+		</div>
+		<div  class="introduction"  style="font-size:15px;font-weight: bold;background-color: #F6F6F6;margin-left: 150px;">
+			<span  style="font-size: 22px;font-weight: bold;color: black;padding-left: 20px;">其他买家也需要你的建议哦！</span><br>
+			<div  style="margin-top:30px;margin-left:55px;color: black;">评价：</div>
+			<div style="text-align: center;">			
+				<textarea v-model="msg" id="msg" contenteditable="true" style="margin-top:5px;width: 500px;height:100px;"></textarea><br>
+			</div>
+			
+			<div style="height: 50px;">	
+				<form id="ff">	
+				<a href="javascript:void(0);" class="file"  >电脑晒图
+	    			<input type="file" name="file" id="file" onchange="upload()">
+				</a>
+				 <img style="width: 40px;height: 40px;" id="image"  alt="" src="">		
+<!-- 				 <input type="hidden" name="image" v-model="imageurl"> -->
+				</form>
+			</div>
+			<div style="text-align: center;margin-top: 20px;">
+				<button @click="saveMsg()" style="color: #fff; cursor: pointer;background-color: #C40000; border-radius: 10px;font-size:17px;font-weight: bold;">提交评价</button>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+// 			var pid=location.hash.substring(1);	
+		var str=location.href; //取得整个地址栏		
+		var pid= str.match(/\?(\d*)/)[1];//使用正则表达式截取？后面的数字，有利于定位商品介绍及评价
+		var oid= str.match(/\#(\d*)/)[1];//获取这个订单下的pid
+			var vue=new Vue({
+				el:"#evaluate",
+				data:{
+					product:{},
+					msg:"",//输入的评价
+					imageurl:"",//图片路径
+				},
+				created:function(){	
+					//商品详情
+					axios.get("product.do?op=queryById&id="+pid).then( res=> {
+						this.product=res.data;
+					});
+
+				},
+				methods:{		
+					//提交评价
+					saveMsg(){
+						axios({
+							url:"evaluate.do?op=add",
+							params:{
+								id:pid,
+								oid:oid,
+								msg:this.msg,//前面是请求参数名 后面是vue变量值
+								image:this.imageurl
+							}
+						}).then( (res)=>{
+							if(res.data.code==1){
+								alert(res.data.msg);
+								location.href="olist.html";
+							}
+						});	
+					}
+				}
+			});
+			
+		</script>
+
+
+
+
+	<div id="footer">
+		<page-foot></page-foot>
+	</div>
+	<script type="text/javascript">
+	new Vue({el:"#footer"});
+</script>
+
+</body>
+</html>

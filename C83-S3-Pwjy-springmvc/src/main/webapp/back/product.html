@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商品管理</title>
+<link rel="stylesheet" type="text/css" href="easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="easyui/themes/icon.css">
+<style type="text/css">
+	input {
+		width: 200px;
+	}
+	button {
+		width: 70px;
+		height: 35px;
+		border-radius:5px;
+		cursor: pointer;		
+	}
+</style>
+<script type="text/javascript" src="easyui/jquery.min.js"></script>
+<script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+<!-- 基于promise技术专门用于ajax调用的js -->
+<script type="text/javascript" src="../js/axios.min.js"></script>
+<script type="text/javascript">
+	//图片显示
+	function fmtImg(value,row,index){
+		return "<img height='100px' src='../"+value+"'>";
+	}
+	//出版时间字段的格式化方法
+	 function fmtDate(date){
+		var y = date.getFullYear();
+		var m = date.getMonth()+1;
+		var d = date.getDate();
+		return y+'-'+m+'-'+d;
+	}
+	
+	//查询
+	function query(){
+		var ishot=0;
+		if($("#isHot").checkbox('options').checked==true){
+			ishot=1;
+		}
+		$('#dg').datagrid('load',{
+		   pname:$("#pname").textbox('getValue'),
+		   cid:$("#cid").textbox('getValue'),
+		  	isHot:ishot,
+		 // isHot:$("#isHot").checkbox('options').value,
+		   //createtime:$("#createtime").textbox('getValue'),
+		});
+	}
+	//操作字段的格式化方法
+	function fmtOp(value,row,index) {
+		return "<button onclick='edit("+index+")'>修改</button>&nbsp; &nbsp;<button onclick='del("+index+")'>删除</button>";
+	}
+	
+	//添加按钮
+	function insert() {
+		edit();
+	}
+	
+	//打开修改窗口
+	function edit(index) {
+		$('#dd').dialog('open');		
+		if(index != undefined){
+			//修改某一行记录
+			//edit()不传参数，就是undefined
+			var rows=$('#dg').datagrid("getRows");
+			rows[index].isHot=rows[index].is_hot;
+			rows[index].marketPrice=rows[index].market_price;
+			rows[index].shopPrice=rows[index].shop_price;
+			upImg.src="../"+rows[index].image;
+			$('#ff').form('load',rows[index]);
+		}else{
+			//添加数据
+			$('#ff').form('clear');
+		}
+	}
+	
+	//保存数据
+	function save() {
+		//easyui的表单ajax提交方式
+		$('#ff').form('submit',{
+			url:"../product.do",
+			onSubmit:function (param) {
+				//扩展请求参数
+				param.op="save";
+			},
+			success:res=>{
+				//原有的res==>消息	现在的res==》JSON对象(code,msg,data)
+				res=JSON.parse(res);
+				alert(res.msg);
+				if(res.code==1){
+					$('#dd').dialog('close');
+					$('#dg').datagrid('reload');
+					//刷新当前页面回到主页面
+					//window.location.href = 'books.html';
+				}
+				//否则什么都不做
+				
+			}
+		});
+	}
+	
+	//取消按钮关闭dialog窗口
+	function cancel() {	
+		$('#dd').dialog('close');
+		$('#dg').datagrid('reload');
+		//刷新当前页面回到主页面
+		//window.location.href = 'product.html';
+	}
+	
+	//重置
+	function reset() {
+		$("#pname").textbox('setValue',"");
+		$("#cid").textbox('setValue',"");
+		location.href="product.html";
+		
+	}
+	//删除
+	function del(index) {		
+		var row = $('#dg').datagrid('getSelected');
+		var id;
+		if(row){
+			id=row.id;
+			var flag=false;
+			if(confirm("确定要删除吗?")){
+		        flag=true;
+		     }else{
+			    flag=false;
+			 }
+			if(flag==true){
+				//兰姆达表达式写法， =>箭头写法
+				axios({
+					url:"../product.do?op=delProduct",
+					params:{
+						id:id
+					}
+					//function(res){} 的简写 (res)=>{}
+				}).then( (res)=>{
+					//axios 方法会自动转JSON对象
+					alert(res.data);
+					window.location.href = 'product.html';
+				});
+			}
+		}else{
+			alert("请选择你要删除的记录！")
+		}
+	}
+	
+	//上传图片
+	function upload(newValue,oldValue) {
+		var url="../UploadServlet.do";
+		var fd=new FormData(ff); 
+		axios.post(url,fd).then( res=>{
+			alert(res.data.msg);
+			if(res.data.code){
+				//upImg是原生的HTML控件对象
+				if(res.data.data.indexOf("/")!=0){
+					// 以../开头的图片
+					upImg.src="../"+res.data.data;
+				}else{
+					// 以/开头的图片(上传的图片)
+					upImg.src=res.data.data;
+				}
+				//tbImg 是easyui的控件对象
+				$("#tbImg").textbox('setValue',res.data.data);
+			}
+		});
+	}
+</script>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'" style="height: 50px;text-align: center; padding-top: 10px;padding-left: 10px">
+		<!-- data-options=" prompt='书名'" -->
+			名称:<input class="easyui-textbox" style="width:200px" id="pname"> 
+			分类:<input class="easyui-combobox" style="width:200px" id="cid"
+			data-options=" url:'../category.do?op=queryMenu',valueField:'id', textField:'cname'">
+<!-- 			上架时间:<input class="easyui-datebox" style="width:200px" id="createtime"> -->
+			热卖:<input class="easyui-checkbox" id="isHot" value="1" >
+			<a id="btn" href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="query()">查询</a>
+			<a id="btn1" href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="insert()">添加</a>
+			<a id="btn2" href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" onclick="reset()">重置</a>
+		</div>
+		<div data-options="region:'center',title:'商品管理',iconCls:'icon-ok'" style="text-align: center;">
+			<table class="easyui-datagrid" id="dg"
+				data-options="url:'../product.do?op=query',
+				method:'get',
+				border:false,
+				singleSelect:true,
+				fit:true,
+				pagination:true,
+				fitColumns:true" style="text-align: center;">
+				<thead>
+					<tr>
+					<th data-options="field:'id' ,width:20,align:'center'">编号</th>
+						<th data-options="field:'pname' ,width:100,align:'center'">名称</th>
+						<th data-options="field:'shop_price' ,width:100,align:'center'">市场价格</th>
+						<th data-options="field:'market_price' ,width:100,align:'center'">商城价格</th>
+						<th data-options="field:'cname' ,width:100,align:'center'">分类</th>
+						<th data-options="field:'is_hot' ,width:20,align:'center'">热买</th>
+						<th data-options="field:'createtime',width:100,align:'center'">上架日期</th>
+ 						<th data-options="field:'image',
+ 						width:100,
+ 						formatter:fmtImg,
+ 						 align:'center'">图片</th>
+ 						 <!-- 使用一个不存在的字段名 -->
+ 						<th data-options="field:'idd' ,width:100,formatter:fmtOp,align:'center'">操作</th>
+ 						 
+					</tr>
+				</thead>
+			</table>
+		</div>
+
+	</div>
+	
+	<!-- 商品编辑窗口 -->
+	<div id="dd" class="easyui-dialog" title="图书编辑" style="width:500px;height:500px;padding-top: 50px"
+    data-options="iconCls:'icon-save',
+    resizable:false,
+    modal:true,
+    closed:true,
+    buttons:'#bb',
+    align:'center'">
+    	<form id="ff" style="text-align: center;">
+	   		<input  class="easyui-textbox" label="编号:" name="id" readonly="true"><br> 
+			<input  class="easyui-textbox" label="名称:" name="pname"><br>
+			<input  class="easyui-combobox" label="分类:" name="cid" url="../category.do?op=query"  valueField= "id"  textField="cname"><br> 
+			<input  class="easyui-numberbox" label="市场价" data-options="min:0,precision:2" name="marketPrice" ><br>
+			<input  class="easyui-numberbox" label="商城价" data-options="min:0,precision:2" name="shopPrice"><br> 
+			<input  class="easyui-textbox" label="描述" name="pdesc"><br>
+			<input  class="easyui-textbox" label="热销" name="isHot"><br> 
+			<input  class="easyui-textbox" label="图片" name="image" id="tbImg"><br> <!-- readonly="true" -->
+			<input  class="easyui-filebox" label="选择" id="file" name="file"
+			data-options="onChange:upload"><br>
+			<img alt="" src="../products/1/cs10001.jpg" height="100px" id="upImg" onclick="filebox_file_id_1.click()">
+		</form>
+	</div>
+	<div id="bb">
+	<a href="javascript:void(0)" class="easyui-linkbutton" onclick="save()">保存</a>
+	<a href="javascript:void(0)" class="easyui-linkbutton" onclick="cancel()">取消</a>
+</div>
+</body>
+</html>

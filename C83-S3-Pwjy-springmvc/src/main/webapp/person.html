@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>大麦商城</title>
+<link href="css/common.css" rel="stylesheet" type="text/css" />
+<link href="css/product.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/vue.js"></script>
+<script type="text/javascript" src="js/axios.min.js"></script>
+<script type="text/javascript" src="js/comp.js"></script>
+<link rel="stylesheet" type="text/css"
+	href="back/easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css"
+	href="back/easyui/themes/icon.css">
+<script type="text/javascript" src="back/easyui/jquery.min.js"></script>
+<script type="text/javascript" src="back/easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript"
+	src="back/easyui/locale/easyui-lang-zh_CN.js"></script>
+
+<style type="text/css">
+.Content-Main {
+	max-width: 500px;
+	margin: auto;
+	border: none;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	text-shadow: 1px 1px 1px #444;
+	color: #D3D3D3;
+	background: #555;
+}
+
+.Content-Main h1 {
+	padding: 8px 0px 40px 10px;
+	display: block;
+	border-bottom: 1px solid #444;
+}
+
+.text1 {
+	margin-left: 3px;
+}
+
+.Content-Main label {
+	margin: 0px 0px 5px;
+	display: block;
+}
+
+.fileInputContainer {
+	height: 160px;
+	width: 200px;
+	margin: 20px 20px 20px 20px;
+	border: none;
+	overflow: hidden;
+	position: relative;
+}
+
+.fileInput {
+	height: 106px;
+	border: none;
+	font-size: 300px;
+	opacity: 0;
+	filter: alpha(opacity = 0);
+	cursor: pointer;
+	position: absolute;
+}
+
+.Content-Main label>span {
+	width: 20%;
+	float: left;
+	text-align: right;
+	padding-right: 10px;
+	margin-top: 10px;
+	font-weight: bold;
+}
+
+.Main-sex {
+	padding-right: 13px;
+	padding-bottom: 13px;
+	font-weight: bold;
+	line-height: 4px;
+}
+
+.Main-sex input[type=checkbox] {
+	margin-top: 6px;
+	vertical-align: middle;
+}
+
+.Content-Main input[type="text"], .Content-Main input[type="email"],
+	.Content-Main textarea {
+	height: 25px;
+	width: 50%;
+	line-height: 15px;
+	padding: 5px 0px 5px 5px;
+	margin-bottom: 16px;
+	margin-right: 6px;
+	margin-top: 2px;
+	border: none;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	outline: 0 none;
+	background: #DFDFDF;
+	color: #525252;
+}
+
+.Content-Main textarea {
+	height: 100px;
+	width: 70%;
+	padding: 5px 0px 0px 5px;
+}
+
+.Content-Main .button {
+	padding: 8px 24px 8px 24px;
+	margin-bottom: 8px;
+	border: none;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	font-weight: bold;
+	text-shadow: 1px 1px 1px #FFE477;
+	box-shadow: 1px 1px 1px #3D3D3D;
+	-moz-box-shadow: 1px 1px 1px #3D3D3D;
+	-webkit-box-shadow: 1px 1px 1px #3D3D3D;
+	color: #585858;
+	background:#EBEBEB ;
+	font-size: 14px;
+}
+
+.Content-Main .button:hover {
+	color: #333;
+	background-color:#f6ff0a ;
+}
+/*斗篷样式*/
+[v-cloak] {
+	visibility: hidden; /*display:none*/
+}
+
+#email[value] {
+	color: gray;
+}
+
+#email1[value] {
+	color: black;
+}
+
+.file {
+    position: relative;
+    display: inline-block;
+    background: #D0EEFF;
+    border: 1px solid #99D3F5;
+    border-radius: 4px;
+    padding: 4px 12px;
+    overflow: hidden;
+    color: #1E88C7;
+    text-decoration: none;
+    text-indent: 0;
+    line-height: 20px;
+    margin-left:40px; 
+    margin-top: 10px;
+}
+.file input {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+.file:hover {
+    background: #AADFFD;
+    border-color: #78C3F3;
+    color: #004974;
+    text-decoration: none;
+}
+</style>
+</head>
+<body>
+
+	<div id="header">
+		<page-head></page-head>
+	</div>
+	<script type="text/javascript">
+	var hvue=new Vue({el:"#header"});
+	</script>
+
+	<div class="container productList">
+
+
+		<div class="span6">
+			<div class="hotProductCategory" style="font-size: 17px;font-weight: bold;">
+				<!-- 先循环菜单栏的 cname -->
+				<dl>
+					<dd>
+						<a href='person.html'>个人信息</a>
+					</dd>
+					</br>
+					<dd>
+						<a href='addr.html'>地址管理</a>
+					</dd>
+					</br>
+					<dd>
+						<a href='passmodify.html'>修改密码</a>
+					</dd>
+
+				</dl>
+			</div>
+
+			<script type="text/javascript">
+			//图片字段的格式化方法
+			function fmtImg(value, row, index) {
+				//  <img height='100px' src='../products/1/cs10001.jpg'>   
+				return "<img height='100px' src='../"+value+"'>";
+			}
+			//上传图片
+			function upload(newValue,oldValue) {
+				//alert("文件");
+				var url="UploadServlet.do";
+				var fd=new FormData(ff); 
+				axios.post(url,fd).then( res=>{
+					alert(res.data.msg);
+					if(res.data.code){
+						//upImg是原生的HTML控件对象
+						if(res.data.data.indexOf("/")!=0){
+							// 以../开头的图片
+							image.src="../"+res.data.data;
+						}else{
+							// 以/开头的图片(上传的图片)
+							image.src=res.data.data;
+						}
+						//tbImg 是easyui的控件对象
+						vue.$data.image=res.data.data;
+						console.log(vue.$data.image);
+					}
+				});
+			}
+			
+			function checkemail() { 
+				if ($("#email").val() == "") { 
+				//$("#confirmMsg").html("<font color='red'>邮箱地址不能为空！</font>"); 
+				alert("邮箱不能为空!") 
+				$("#email").focus(); 
+				 
+				} 
+				if (!$("#email").val().match(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/)) { 
+				alert("邮箱格式不正确"); 
+				//$("#confirmMsg").html("<font color='red'>邮箱格式不正确！请重新输入！</font>"); 
+				$("#email").focus(); 
+				document.getElementById("email").value="";
+				} 
+				 
+				} 
+
+				//jquery验证手机号码 
+				function checkPhone() { 
+				if ($("#phone").val() == "") { 
+				alert("手机号码不能为空！"); 
+				//$("#moileMsg").html("<font color='red'>手机号码不能为空！</font>"); 
+				$("#phone").focus(); 
+				
+				} 
+
+				if (!$("#phone").val().match(/^(((13[0-9]{1})|159|153)+\d{8})$/)) { 
+				alert("手机号码格式不正确！"); 
+				//$("#moileMsg").html("<font color='red'>手机号码格式不正确！请重新输入！</font>"); 
+				$("#phone").focus(); 
+				document.getElementById("phone").value="";
+				} 
+				
+				} 
+			
+			
+			</script>
+		</div>
+
+		<div id="dg" class="Content-Main" class="easyui-layout">
+			<form action="" method="post" class="form-userInfo" id="ff">
+				<h1>个人信息</h1>
+				<span>请在文本框中完善您的个人信息：</span>
+				<p>
+				<div class="fileInputContainer">
+					<!--                    <input class="easyui-filebox" label="选择" id="file" name="file" data-options="onChange:upload"><br> -->
+					<!-- 		           <img alt=""  height="100px" id="upImg"onclick="filebox_file_id_1.click()"><br> -->
+					<form id="ff" style="text-align: center;">
+						<img style="width:100px; height:100px;margin-left:30px;" id="image" alt="" :src="image">
+						<a href="javascript:void(0);" class="file">选择头像
+						<input type="file" name="file" id="file" onchange="upload()">
+						</a> 
+					</form>
+				</div>
+				<label> <span>英文昵称:</span> <input v-model="ename"
+					type="text" name="name" placeholder="Your Full Name" readonly="true" style="background-color: #555;color: white; font-size: 15px"><a></a>
+				</label> <label> <span>中文昵称:</span>
+<!-- 				 <span> <label v-cloak>{{uname}}</label></span>  -->
+				 <input v-model="uname" type="text"  name="name" placeholder="Your Full Name" onblur="checkUserName()">
+					<!--<span>{{uname}}</span><br>  -->
+
+				</label><br> <label class="Main-sex"> <span>性别:</span> <!-- <input v-model="sex" type="text"  name="sex" >
+                    <input type="radio" name="sex" value="男">男生
+		                <input type="radio" name="sex" value="女">女生--> <input
+					v-model="sex" type="radio" name="sex" value="男">男生 <input
+					v-model="sex" type="radio" name="sex" value="女">女生
+
+				</label> <label> <span>Your email :</span> <input id="email"
+					v-model="email" v-model="phone" type="email" name="email"
+					placeholder="@.com" onclick="checkemail()">
+				</label> <label> <span>电话:</span> <input id="phone" v-model="phone"
+					type="text" name="phone" onclick="checkPhone()"
+					placeholder="Please input 11 number">
+				</label>
+				<!--<label>
+                    <span>个性签名:</span>
+                    <textarea id="message" name="message" placeholder="Your message to us"></textarea>
+                </label>
+                -->
+
+				<label> 
+<!-- 					<input @click="save()" type="button" class="button" value="提交" > -->
+				</label>
+				<div style="text-align: center;margin-top: 20px;">
+					<button  class="button"  @click="save()" >提交</button>
+				</div>
+
+
+			</form>
+		</div>
+
+		<script type="text/javascript">
+			var vue=new Vue({
+				el:".Content-Main",
+				data:{
+					loginUser:{},
+					uname:"",
+					ename:"",
+					phone:"",
+					email:"",
+					sex:"",
+					image:"",
+					
+				},
+				created:function(){
+					//获取登录的用户名或密码
+					axios.get("user.do?op=getUser").then( (res)=> {
+						if(res.data){
+							//获取登录的用户名
+							this.uname=res.data.cname;
+							this.ename=res.data.ename;
+							this.phone=res.data.phone;
+							this.email=res.data.email;
+							this.sex=res.data.sex;
+							this.image=res.data.image;					
+						}else{
+							alert("请先登录！");
+							location.href="login.html";
+						}
+
+					});
+				},
+				methods:{
+					save(){
+						axios({
+							//url:"LoginServlet.do",
+							url:"user.do?op=updateUser",
+							params:{
+								//前面是请求参数值，后面是vue的变量值 
+								ename:this.ename,
+								cname:this.uname,
+								phone:this.phone,
+								email:this.email,
+								sex:this.sex,
+								image:this.image
+							}
+							//function(res){} 的简写 (res)=>{}
+							
+						}).then( (res)=>{
+							
+							if(res.data){
+								alert(res.data);
+								location.href = 'person.html';
+							}
+							
+	
+						});
+						
+
+						
+					}
+				}
+					
+				
+			});
+		</script>
+</div>
+		<div id="footer">
+			<page-foot></page-foot>
+		</div>
+		<script type="text/javascript">
+	new Vue({el:"#footer"});
+</script>
+</body>
+</html>

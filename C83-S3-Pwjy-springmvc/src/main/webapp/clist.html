@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>大麦商城</title>
+<link href="css/common.css" rel="stylesheet" type="text/css"/>
+<link href="css/product.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="js/vue.js"></script>
+<script type="text/javascript" src="js/axios.min.js"></script>
+<script type="text/javascript" src="js/comp.js"></script>
+</head>
+<body>
+
+<div id="header">	
+<page-head></page-head>
+</div>
+<script type="text/javascript">
+	var hvue=new Vue({el:"#header"});
+</script>
+
+<div class="container productList">
+	
+
+		<div class="span6">
+			<div class="hotProductCategory">
+				<!-- 先循环菜单栏的 cname -->
+				<dl  v-for="m in Menu">
+						<dt >
+							<a :href=" 'clist.html#' +m.id" @click="tiao(m.id)">{{m.cname}}</a>
+						</dt>
+						<dd v-for="c in CList" v-if="c.pid==m.id">
+							<a :href=" 'clist.html#' +c.pid">{{c.cname}}</a>
+						</dd>		
+				</dl>	
+			</div>
+			<script type="text/javascript">
+						var currentPName=null;//循环时，当前板块名
+						var cevue=new Vue({
+							el:".hotProductCategory",
+							data:{
+								CList:[],//查询分类的商品
+								 Menu:[],//保存菜单栏
+							},
+							created:function(){
+								//获取侧栏菜单数据
+								axios.get("category.do?op=queryCategory").then( (res)=> {
+									this.CList=res.data.list;								
+								});
+								//显示菜单导航栏
+								axios.get("category.do?op=queryMenu").then(res=>{	
+									this.Menu=res.data;
+								});
+							},
+							methods:{
+								showParent(pname){
+									//如果当前父板块名与传过来的父板块相同，就不显示
+									if(pname==this.currentPName){
+										return false;
+									}else{
+										this.currentPName=pname;
+										return true;
+									}
+									
+								},
+								//用于页面刷新
+								tiao(id){
+									location.href='clist.html#'+id;
+									location.reload();//页面刷新		
+								}
+							}
+						});					
+						
+			</script>
+</div>
+		
+		<div id="span18" class="span18 last">
+			
+			<form id="productForm" action="image/蔬菜 - Powered By Mango Team.htm" method="get">
+				<input type="hidden" id="brandId" name="brandId" value=""/>
+				<input type="hidden" id="promotionId" name="promotionId" value=""/>
+				<input type="hidden" id="orderType" name="orderType" value=""/>
+				<input type="hidden" id="pageNumber" name="pageNumber" value="1"/>
+				<input type="hidden" id="pageSize" name="pageSize" value="20"/>
+					
+				<div id="result" class="result table clearfix">
+						<ul>	
+							<li v-for="p in pList">
+								<a :href="'detail.html?' + p.id">
+									<img :src="p.image" width="170" height="170"  style="display: inline-block;"/>
+									   
+									<span style='color:green'>
+									{{p.pname}}
+									</span>
+									 
+									<span class="price">
+										商城价： ￥{{p.market_price}}/份
+									</span>
+									 
+								</a>
+							</li>
+						</ul>
+				</div>
+			
+	<div class="pagination" >
+				<!-- 分页 -->
+				<a v-if="currentPage>1" class="firstPage"  @click="primaryPage"  href="javascript:void(0)">&nbsp;</a>
+				<a v-if="currentPage>1" class="previousPage"  @click="prePage" href="javascript:void(0)">&nbsp;</a>
+					<template v-for="index in indexs" >
+						<span v-if="index==currentPage" class="currentPage">{{index}}</span>
+						<a v-else  @click="btnClick(index)" href="javascript:void(0)">{{index}}</a>				
+					</template>		
+				<a v-if="currentPage<pages" class="nextPage" @click="nextPage" href="javascript:void(0)">&nbsp;</a>
+				<a v-if="currentPage<pages" class="lastPage" @click="lastPage" href="javascript:void(0)">&nbsp;</a>
+				<span>第{{currentPage}}/{{pages}}页</span>		
+	</div>
+
+			</form>
+	</div>
+	<script type="text/javascript">
+		var vue=new Vue({
+			el:"#span18",
+			data:{
+				pList:[],//查询分类的商品
+				pages:1,//总页数
+				currentPage:1,//当前页数
+			},
+			created:function(){
+				this.showPage(1);
+			},
+			methods: {				
+				//首页
+				primaryPage(){
+				    this.currentPage = 1;
+				    this.showPage( this.currentPage);
+				},
+				//上一页
+				prePage(){
+			      	if(this.currentPage == 1){
+			          return ;
+			        }
+			      	this.currentPage = this.currentPage - 1;
+			      	this.showPage( this.currentPage);
+			    },
+			    //下一页
+			    nextPage(){
+			        if(this.currentPage == this.pages){
+			          return ;
+			        }
+			        this.currentPage = this.currentPage + 1;
+			        this.showPage( this.currentPage);
+			    },
+			  	//尾页  
+				lastPage(){
+					this.currentPage = this.pages;
+					this.showPage( this.currentPage);
+				},
+				//点击页数
+		        btnClick: function(data){
+		            if(data != this.currentPage){
+		                this.currentPage = data;
+		            }
+		            this.showPage( this.currentPage);
+		        },
+		        //显示现在第几页
+		        pageClick: function(){
+		            console.log('现在在'+this.currentPage+'页');
+		        },
+		        //跳转到相应页数
+		        showPage(curPage){
+		        	var cid=location.hash.substring(1);	
+		        	axios.get("product.do?op=queryPage&page="+curPage+"&cid="+cid).then( res=> {
+						this.pList=res.data.plist;
+						this.pages=res.data.pages;
+					});
+		        }
+			},
+			computed: {
+				//计算页数显示
+		        indexs: function(){
+		        	var left = 1;
+		          	var right = this.pages;
+		          	var ar = [];
+		          	if(this.pages>= 5){
+		          		//这里最大范围从3到6，如果到达7，那么下边加2变成9，已经超过最大的范围值
+		            	if(this.currentPage > 3 && this.currentPage < this.pages-1){
+		            		//以4为参考基准，左面加2右边加2
+		                	left = this.currentPage - 2;
+		                    right = this.currentPage + 2;
+		            	}else{
+		                	if(this.currentPage<=3){
+			                    left = 1;
+			                    right = 5;
+		                	}else{
+			                    right = this.pages;
+			                    left = this.pages -4;
+		                	}
+		            	}
+		         	}
+		       		while (left <= right){
+			            ar.push(left);
+			            left ++;
+		        	}
+		        	console.log(ar);
+		        	return ar;
+		       	}
+		    }
+		});					
+		
+	</script>
+	</div>
+	
+<div id="footer">
+<page-foot></page-foot>
+</div>
+<script type="text/javascript">
+	new Vue({el:"#footer"});
+</script>
+
+</body></html>

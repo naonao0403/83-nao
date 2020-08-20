@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>后台管理系统</title>
+<link rel="stylesheet" type="text/css" href="easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="easyui/themes/icon.css">
+<script type="text/javascript" src="easyui/jquery.min.js"></script>
+<script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+<!-- 基于promise技术专门用于ajax调用的js -->
+<script type="text/javascript" src="../js/axios.min.js"></script>
+<!-- ../表示这个的上一级目录 -->
+<script type="text/javascript" src="../js/vue.js"></script>
+
+<!-- product.html 的脚本-->
+<script type="text/javascript">
+	//图片显示
+	function fmtImg(value,row,index){
+		return "<img height='100px' src='../"+value+"'>";
+	}
+	//出版时间字段的格式化方法
+	 function fmtDate(date){
+		var y = date.getFullYear();
+		var m = date.getMonth()+1;
+		var d = date.getDate();
+		return y+'-'+m+'-'+d;
+	}
+	
+	//查询
+	function query(){
+		var ishot=0;
+		if($("#isHot").checkbox('options').checked==true){
+			ishot=1;
+		}
+		$('#dg').datagrid('load',{
+		   pname:$("#pname").textbox('getValue'),
+		   cid:$("#cid").textbox('getValue'),
+		  	isHot:ishot,
+		 // isHot:$("#isHot").checkbox('options').value,
+		   //createtime:$("#createtime").textbox('getValue'),
+		});
+	}
+	//操作字段的格式化方法
+	function fmtOp(value,row,index) {
+		return "<button onclick='edit("+index+")'>修改</button>&nbsp; &nbsp;<button onclick='del("+index+")'>删除</button>";
+	}
+	
+	//添加按钮
+	function insert() {
+		edit();
+	}
+	
+	//打开修改窗口
+	function edit(index) {
+		$('#dd').dialog('open');		
+		if(index != undefined){
+			//修改某一行记录
+			//edit()不传参数，就是undefined
+			var rows=$('#dg').datagrid("getRows");
+			rows[index].isHot=rows[index].is_hot;
+			rows[index].marketPrice=rows[index].market_price;
+			rows[index].shopPrice=rows[index].shop_price;
+			upImg.src="../"+rows[index].image;
+			$('#ff').form('load',rows[index]);
+		}else{
+			//添加数据
+			$('#ff').form('clear');
+		}
+	}
+	
+	//保存数据
+	function save() {
+		//easyui的表单ajax提交方式
+		$('#ff').form('submit',{
+			url:"../product.do",
+			onSubmit:function (param) {
+				//扩展请求参数
+				param.op="save";
+			},
+			success:res=>{
+				//原有的res==>消息	现在的res==》JSON对象(code,msg,data)
+				res=JSON.parse(res);
+				alert(res.msg);
+				if(res.code==1){
+					$('#dd').dialog('close');
+					$('#dg').datagrid('reload');
+					//刷新当前页面回到主页面
+					//window.location.href = 'books.html';
+				}
+				//否则什么都不做
+				
+			}
+		});
+	}
+	
+	//取消按钮关闭dialog窗口
+	function cancel() {	
+		$('#dd').dialog('close');
+		$('#dg').datagrid('reload');
+		//刷新当前页面回到主页面
+		//window.location.href = 'product.html';
+	}
+	
+	//重置
+	function reset() {
+		$("#pname").textbox('setValue',"");
+		$("#cid").textbox('setValue',"");
+		location.href="product.html";
+		
+	}
+	//删除
+	function del(index) {		
+		var row = $('#dg').datagrid('getSelected');
+		var id;
+		if(row){
+			id=row.id;
+			var flag=false;
+			if(confirm("确定要删除吗?")){
+		        flag=true;
+		     }else{
+			    flag=false;
+			 }
+			if(flag==true){
+				//兰姆达表达式写法， =>箭头写法
+				axios({
+					url:"../product.do?op=delProduct",
+					params:{
+						id:id
+					}
+					//function(res){} 的简写 (res)=>{}
+				}).then( (res)=>{
+					//axios 方法会自动转JSON对象
+					alert(res.data);
+					window.location.href = 'product.html';
+				});
+			}
+		}else{
+			alert("请选择你要删除的记录！")
+		}
+	}
+	
+	//上传图片
+	function upload(newValue,oldValue) {
+		var url="../UploadServlet.do";
+		var fd=new FormData(ff); 
+		axios.post(url,fd).then( res=>{
+			alert(res.data.msg);
+			if(res.data.code){
+				//upImg是原生的HTML控件对象
+				if(res.data.data.indexOf("/")!=0){
+					// 以../开头的图片
+					upImg.src="../"+res.data.data;
+				}else{
+					// 以/开头的图片(上传的图片)
+					upImg.src=res.data.data;
+				}
+				//tbImg 是easyui的控件对象
+				$("#tbImg").textbox('setValue',res.data.data);
+			}
+		});
+	}
+</script>
+
+<!-- category.html 的脚本-->
+<script type="text/javascript">
+	
+	//图片字段的格式化方法
+	function fmtImg(value, row, index) {
+		//  <img height='100px' src='../products/1/cs10001.jpg'>   
+		return "<img height='100px' src='../"+value+"'>";
+	}
+	
+	// 出版时间字段的格式化方法
+	function fmtDate(date){
+		var y = date.getFullYear();
+		var m = date.getMonth()+1;
+		var d = date.getDate();
+		return y + "-" + m + '-' + d;
+	}
+	
+	//重置
+	function reset() {
+		$("#cname").textbox('setValue',"");
+		$("#pid").textbox('setValue',"");
+		location.href="category.html";
+	}
+	//查询
+	function query(){
+		$('#dg').datagrid('load',{
+			cname: $("#cname").textbox('getValue'),
+			pid: $("#pid").textbox('getValue'),
+		});
+	}
+	
+	// 操作字段的格式化方法
+	function fmtOp(value, row, index) {
+		return "<button onclick='edit("+index+")'>修改</button>&nbsp; &nbsp;<button onclick='del("+index+")'>删除</button>";
+	}
+	
+	// 打开修改窗口
+	function edit(index) {
+		$("#dd").dialog('open');
+		// index 有值 就是修改表格中的某一行记录, 否则是新增
+		// edit() 不传参数 index 为 undefined
+		if(index != undefined){
+			var rows = $('#dg').datagrid("getRows");
+			$('#ff').form('load',rows[index]);
+		} else {
+			$('#ff').form('clear');
+		}
+	}
+	//删除
+	function del(index) {		
+		var row = $('#dg').datagrid('getSelected');
+		var id;
+		if(row){
+			id=row.id;
+			var flag=false;
+			if(confirm("确定要删除吗?")){
+		        flag=true;
+		     }else{
+			    flag=false;
+			 }
+			if(flag==true){
+				//兰姆达表达式写法， =>箭头写法
+				axios({
+					url:"../category.do?op=delCategory",
+					params:{
+						id:id
+					}
+					//function(res){} 的简写 (res)=>{}
+				}).then( (res)=>{
+					//axios 方法会自动转JSON对象
+					alert(res.data);
+					window.location.href = 'category.html';
+				});
+			}
+		}else{
+			alert("请选择你要删除的记录！")
+		}
+	}
+	//保存
+	function save() {
+		// easyui 的表单的ajax提交方式
+		$('#ff').form('submit',{
+			url : "../category.do",
+			onSubmit: function(param){
+				//  扩展请求参数
+				param.op = "save";
+			},
+			success : res=>{
+				// 原有的 res ==> 消息, 现在的 res ==> json对象  {  code , msg, data }
+				res = JSON.parse(res);
+				alert(res.msg);
+				if(res.code == 1 ){
+					// 关闭窗口
+					$("#dd").dialog('close');
+					// 刷新表格
+					$('#dg').datagrid("reload");
+				}
+				// 否则什么都不做 
+			}
+		});
+	}
+	
+	//取消按钮关闭dialog窗口
+	function cancel() {	
+		$('#dd').dialog('close');
+		$('#dg').datagrid('reload');
+		//刷新当前页面回到主页面
+		//window.location.href = 'product.html';
+	}
+	
+</script>
+
+
+<!-- payproduct.html 脚本 -->
+<script type="text/javascript">
+	//图片显示
+	function fmtImg(value,row,index){
+		return "<img height='100px' src='../"+value+"'>";
+	}
+	
+	//查询
+	function query(){
+		$('#dg').datagrid('load',{
+		   pname:$("#pname").textbox('getValue'),
+		   id:$("#oid").textbox('getValue')
+		});
+	}
+	//操作字段的格式化方法
+	function fmtOp(value,row,index) {
+		return "<span style='color:red;'>买家已付款</span><br><a href='javascript:void(0)' onclick='xiangqing("+index+")'>订单详情</a><br><br><button onclick='fahuo("+index+")'>发货</button>";
+	}
+	
+	//发货
+	function fahuo(index) {		
+		var row = $('#dg').datagrid('getSelected');
+		var id;
+		if(row){
+			id=row.id;
+			var flag=false;
+			if(confirm("确定要发货吗?")){
+		        flag=true;
+		     }else{
+			    flag=false;
+			 }
+			if(flag==true){
+				//兰姆达表达式写法， =>箭头写法
+				axios({
+					url:"../orders.do?op=faHuo",
+					params:{
+						oid:id
+					}
+				}).then( (res)=>{
+					//axios 方法会自动转JSON对象
+					alert(res.data);
+					window.location.href ='payproduct.html';
+				});
+			}
+		}else{
+			alert("请选择你要发货的宝贝！")
+		}
+	}
+	
+	//打开详情窗口
+	function xiangqing(index) {
+		$('#dd').dialog('open');	
+		if(index != undefined){
+			//修改某一行记录
+			//edit()不传参数，就是undefined
+			var rows=$('#dg').datagrid("getRows");
+			var id=rows[index].id;
+			//alert(id);
+			$('#ff').form('load',rows[index]);
+			$('#dg1').datagrid('load',{
+				   id:id
+			});
+		}
+		
+	}
+	
+</script>
+
+
+<!--后台界面  js-->
+<script type="text/javascript">
+	window.onload = function ()  {
+		var vue=new Vue({
+			el:"#admin",
+			data:{
+				user:"",
+			},
+			created:function(){
+				//兰姆达表达式写法， =>箭头写法
+				axios({
+					url:"../adminuser.do?op=getUname",
+					//function(res){} 的简写 (res)=>{}
+				}).then( (res)=>{
+					if(res.data){
+						//axios 方法会自动转JSON对象
+						this.user=res.data;	
+					}else{
+						alert("请先登录");
+						location.href="adminlogin.html";
+					}
+				});
+			},
+			methods:{
+				//退出
+				leave(){
+					//清空登录的用户名
+					this.user="";
+					//alert("退");
+					axios.get("../adminuser.do?op=delLogin").then( (res)=> {
+						alert(res.data);
+						location.href="adminlogin.html";//页面跳转
+						//location.reload();//页面刷新
+					});
+					
+				},
+			}
+		
+		});
+	}
+
+
+var data = [{
+    text: '数据管理',
+    iconCls: 'icon-more',
+    children: [{
+    	 text: '商品管理',
+         url:'../back/product.html'
+    },{
+    	 text: '商品分类管理',
+         url:'../back/category.html'
+    },{
+   	 text: '待发货',
+     url:'../back/payproduct.html'
+	}]
+}];
+
+function toggle(){
+	var opts = $('#sm').sidemenu('options');
+	$('#sm').sidemenu(opts.collapsed ? 'expand' : 'collapse');
+	opts = $('#sm').sidemenu('options');
+	$('#sm').sidemenu('resize', {
+		width: opts.collapsed ? 60 : 200
+	})
+}
+	
+	
+	function selectMenu(item){
+		if($('#tt').tabs('exists',item.text)){
+			$('#tt').tabs('select',item.text);
+		}else{
+			$('#tt').tabs('add',{
+			    title:item.text,
+			    selectd:true,
+			    closable:true,
+			    //嵌入的子页面
+			    content:"<iframe src='"+item.url+" ' "+" style='width:100%; height:100%;border:0px'></iframe>"
+			});
+		}
+	}
+</script>
+
+</head>
+<body>
+	<div class="easyui-layout" fit="true">
+		<div  data-options="region:'north'" style="height: 50px">
+			<span id="admin" style="font-size: 25px; margin: 10px 0 0 20px;">欢迎{{user}}<a style="text-decoration: none;" href="javascript:void(0)" @click="leave()">[退出]</a></span>
+			
+		</div>
+		<div data-options="region:'south',split:true" style="height: 50px;"></div>
+		<div class="easyui-accordion" data-options="region:'west',split:true" title="菜单区" style="width: 150px;">
+			<div title="基础数据维护" id="sm" class="easyui-sidemenu" 
+			data-options="iconCls:'icon-ok',data:data,fit:true,onSelect:selectMenu" 
+			style="overflow:auto;"></div>
+		</div>	
+		<div id="tt" class="easyui-tabs"  data-options="region:'center',title:'功能区',iconCls:'icon-ok'">
+		</div>
+	</div>
+</body>
+</html>
